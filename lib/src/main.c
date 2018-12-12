@@ -30,6 +30,8 @@
 void vypis(BPU_T_Mecs_Ctx * ctx);
 
 int main(int argc, char **argv) {
+	// bude sranda
+	
 	srand(time(NULL));
 
 	BPU_T_Mecs_Ctx *ctx = NULL;
