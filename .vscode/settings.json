@@ -1,0 +1,11 @@
+{
+    "C_Cpp.dimInactiveRegions": false,
+    "files.associations": {
+        "errorcodes.h": "c",
+        "codectx.h": "c",
+        "time.h": "c",
+        "gf2.h": "c",
+        "debugio.h": "c",
+        "qcldpc.h": "c"
+    }
+}
