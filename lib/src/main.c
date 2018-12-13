@@ -215,15 +215,51 @@ int main(int argc, char **argv) {
 	// for (j = 0; j <= HQ->elements_in_row - 1; j++) {
 	// 	BPU_printBinaryMsbLn(HQ->elements[0][j], HQ->element_bit_size);
 	// }
+
+	BPU_T_GF2_QC_Matrix LS;
+	BPU_gf2QcMatrixMalloc(&LS, 3, 8192, 1, 0);
+	
+	// fprintf(stderr, "LS.k: %i\n", LS.k);
+	// fprintf(stderr, "LS.n: %i\n", LS.n);
+	// fprintf(stderr, "LS.column_element_count: %i\n", LS.column_element_count);
+	// fprintf(stderr, "LS.row_element_count: %i\n", LS.row_element_count);
+	// fprintf(stderr, "LS.element_count: %i\n", LS.element_count);
+	// fprintf(stderr, "LS.element_size: %i\n\n", LS.element_size);
+
+	for (i = 0; i < 3; i++) {
+		BPU_gf2PolyMalloc(&LS.matrices[i], 8192);
+	}
+
+	// for (i = 0; i < 3; i++) {
+	// 	fprintf(stderr, "LS.matrices->len: %i\n", LS.matrices[i].len);
+	// 	fprintf(stderr, "LS.matrices->elements_in_row: %i\n", LS.matrices[i].elements_in_row);
+	// 	fprintf(stderr, "LS.matrices->element_bit_size: %i\n\n", LS.matrices[i].element_bit_size);
+	// }
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 256; j++) {
+			LS.matrices[i].elements[j] = HQ->elements[i * 8192][j];
+		}
+	}
+
+	// BPU_printGf2Poly(&LS.matrices[0]);
+	// fprintf(stderr, "\n");
+	// for (j = 255; j >= 0; j--) {
+	// 	BPU_printBinaryMsb(HQ->elements[0][j], 32);
+	// }
+	// fprintf(stderr, "\n");
+
+	BPU_T_GF2_Sparse_Qc_Matrix PR;
+	// BPU_gf2QcMatrixToSparse(&PR, &LS, ???);
 	// ***********************************************************************
 
 
 	// ***********************************************************************
-	BPU_T_GF2_Matrix * g_masked;
-	BPU_gf2MatMalloc(&g_masked, G_masked->k * 2, G_masked->k * 3);
+	// BPU_T_GF2_Matrix * g_masked;
+	// BPU_gf2MatMalloc(&g_masked, G_masked->k * 2, G_masked->k * 3);
 
-	fprintf(stderr, "g_masked->k: %i\n", g_masked->k);
-	fprintf(stderr, "g_masked->n: %i\n\n", g_masked->n);
+	// fprintf(stderr, "g_masked->k: %i\n", g_masked->k);
+	// fprintf(stderr, "g_masked->n: %i\n\n", g_masked->n);
 	// fprintf(stderr, "g_masked->elements_in_row: %i\n", g_masked->elements_in_row);
 	// fprintf(stderr, "g_masked->element_bit_size: %i\n", g_masked->element_bit_size);
 
@@ -236,24 +272,24 @@ int main(int argc, char **argv) {
 	// BPU_printBinaryLsbLn(G_masked->matrices[0].elements[0], 32);
 	// BPU_printBinaryMsbLn(G_masked->matrices[0].elements[0], 32);
 	
-	int l = 0;
-	BPU_T_GF2_Poly temp;
+	// int l = 0;
+	// BPU_T_GF2_Poly temp;
 
-	for (i = 0; i < 2; i++) {
-		for (j = 0; j < 3; j++) {
-			fprintf(stderr, "i: %i, j: %i\n", i, j);
+	// for (i = 0; i < 2; i++) {
+	// 	for (j = 0; j < 3; j++) {
+	// 		fprintf(stderr, "i: %i, j: %i\n", i, j);
 			
-			BPU_gf2PolyCopy(&temp, &G_masked->matrices[i*3 + j]);			
-			for (k = 0; k < G_masked->k; k++) {
-				for (l = 0; l < g_masked->elements_in_row / 3; l++) {
-					g_masked->elements[k + (i * G_masked->k)][j * (g_masked->elements_in_row / 3) + l] = temp.elements[l];
-				}
+	// 		BPU_gf2PolyCopy(&temp, &G_masked->matrices[i*3 + j]);			
+	// 		for (k = 0; k < G_masked->k; k++) {
+	// 			for (l = 0; l < g_masked->elements_in_row / 3; l++) {
+	// 				g_masked->elements[k + (i * G_masked->k)][j * (g_masked->elements_in_row / 3) + l] = temp.elements[l];
+	// 			}
 
-				BPU_gf2PolyMulX(&temp);
-			}
-			BPU_gf2PolyFree(&temp, 0);
-		} 
-	}
+	// 			BPU_gf2PolyMulX(&temp);
+	// 		}
+	// 		BPU_gf2PolyFree(&temp, 0);
+	// 	} 
+	// }
 
 	// BPU_printGf2Mat(g_masked);
 
@@ -274,21 +310,20 @@ int main(int argc, char **argv) {
 
 
 	// ***********************************************************************
-	fprintf(stderr, "MO:\n\n");	
+	// fprintf(stderr, "MO:\n\n");	
 
-	BPU_T_GF2_Matrix * MO;
-	BPU_gf2MatMalloc(&MO, g_masked->k, HQ->n);
-	BPU_gf2MulMat(&MO, g_masked, HQ);
+	// BPU_T_GF2_Matrix * MO;
+	// BPU_gf2MatMalloc(&MO, g_masked->k, HQ->n);
+	// BPU_gf2MulMat(&MO, g_masked, HQ);
 
-	fprintf(stderr, "MO->k: %i\n", MO->k);
-	fprintf(stderr, "MO->n: %i\n\n", MO->n);
+	// fprintf(stderr, "MO->k: %i\n", MO->k);
+	// fprintf(stderr, "MO->n: %i\n\n", MO->n);
 
 	// for (j = 0; j < MO->elements_in_row; j++) {
 	// 	BPU_printBinaryMsbLn(MO->elements[0][j], MO->element_bit_size);
 	// }
 
-	BPU_printGf2Mat(MO);
-
+	// BPU_printGf2Mat(MO);
 	// ***********************************************************************
 	
 	
