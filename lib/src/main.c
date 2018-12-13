@@ -30,8 +30,6 @@
 void vypis(BPU_T_Mecs_Ctx * ctx);
 
 int main(int argc, char **argv) {
-	// bude sranda
-	
 	srand(time(NULL));
 
 	BPU_T_Mecs_Ctx *ctx = NULL;
@@ -97,7 +95,8 @@ int main(int argc, char **argv) {
 			index = row.index[j];
 			bit = index % 32;	
 			column = index / 32;
-			h->elements[i][column] |= (1u << (31 - bit));
+			// h->elements[i][column] |= (1u << (31 - bit));
+			h->elements[i][column] |= (1u << (bit));
 
 			// fprintf(stderr, "%4i: %3i - %2i  ", index, column, bit);
 			// BPU_printBinaryMsbLn(h->elements[i][column], 32);	
@@ -162,7 +161,8 @@ int main(int argc, char **argv) {
 			index = row.index[j];
 			bit = index % 32;
 			column = index / 32;
-			q->elements[(i % Q->n) + (i / q->k) * Q->n][column + (q->elements_in_row / 3) * ((i / Q->element_size) % 3)] |= (1u << (31 - bit));
+			// q->elements[(i % Q->n) + (i / q->k) * Q->n][column + (q->elements_in_row / 3) * ((i / Q->element_size) % 3)] |= (1u << (31 - bit));
+			q->elements[(i % Q->n) + (i / q->k) * Q->n][column + (q->elements_in_row / 3) * ((i / Q->element_size) % 3)] |= (1u << (bit));
 		
 			// fprintf(stderr, "%4i: %3i - %2i  ", index, column, bit);
 			// BPU_printBinaryMsbLn(q->elements[(i % Q->n) + (i / q->k) * Q->n][column + (q->elements_in_row / 3) * ((i / Q->element_size) % 3)], 32);	
@@ -205,6 +205,8 @@ int main(int argc, char **argv) {
 	// fprintf(stderr, "HQ->elements_in_row: %i\n", HQ->elements_in_row);
 	// fprintf(stderr, "HQ->element_bit_size: %i\n\n", HQ->element_bit_size);
 
+	// BPU_printGf2Mat(HQ);
+
 	// BPU_gf2SparseQcMatrixGetRow(&row, H, 0);
 	// BPU_printGf2SparsePoly(&row);
 	// BPU_gf2SparsePolyFree(&row, 0);
@@ -234,60 +236,59 @@ int main(int argc, char **argv) {
 	// BPU_printBinaryLsbLn(G_masked->matrices[0].elements[0], 32);
 	// BPU_printBinaryMsbLn(G_masked->matrices[0].elements[0], 32);
 	
-	int s = 0;
 	int l = 0;
 	BPU_T_GF2_Poly temp;
 
 	for (i = 0; i < 2; i++) {
 		for (j = 0; j < 3; j++) {
-			
 			fprintf(stderr, "i: %i, j: %i\n", i, j);
+			
+			BPU_gf2PolyCopy(&temp, &G_masked->matrices[i*3 + j]);			
 			for (k = 0; k < G_masked->k; k++) {
-				// fprintf(stderr, "k: %i\n", k);
-
-				BPU_gf2PolyCopy(&temp, &G_masked->matrices[i*3 + j]);			
-				
-				for (s = 0; s < k; s++) {
-					BPU_gf2PolyMulX(&temp);
-				}
-
 				for (l = 0; l < g_masked->elements_in_row / 3; l++) {
 					g_masked->elements[k + (i * G_masked->k)][j * (g_masked->elements_in_row / 3) + l] = temp.elements[l];
 				}
 
-				BPU_gf2PolyFree(&temp, 0);
+				BPU_gf2PolyMulX(&temp);
 			}
-
+			BPU_gf2PolyFree(&temp, 0);
 		} 
 	}
 
-	BPU_printGf2Poly(&G_masked->matrices[0]);
-	for (j = 0; j < (g_masked->elements_in_row / 3); j++) {
-		BPU_printBinaryMsb(g_masked->elements[1][j], g_masked->element_bit_size);
-	}
+	// BPU_printGf2Mat(g_masked);
 
-	fprintf(stderr, "\n\n");	
+	// BPU_printGf2Poly(&G_masked->matrices[0]);
+	// for (j = 0; j < (g_masked->elements_in_row / 3) - 250; j++) {
+	// 	BPU_printBinaryLsb(g_masked->elements[j][0], g_masked->element_bit_size);
+	// 	fprintf(stderr, " ");
+	// 	BPU_printBinaryLsbLn(g_masked->elements[j][0 + 1], g_masked->element_bit_size);
+	// }
+	
+	// fprintf(stderr, "\n");	
 
-	BPU_printGf2Poly(&G_masked->matrices[3]);
-	for (j = 0; j < (g_masked->elements_in_row / 3); j++) {
-		BPU_printBinaryMsb(g_masked->elements[G_masked->k][j], g_masked->element_bit_size);
-	}
+	// BPU_printGf2Poly(&G_masked->matrices[3]);
+	// for (j = 0; j < (g_masked->elements_in_row / 3); j++) {
+	// 	BPU_printBinaryMsb(g_masked->elements[G_masked->k][j], g_masked->element_bit_size);
+	// }
 	// ***********************************************************************
 
 
 	// ***********************************************************************
-	// fprintf(stderr, "MO:\n\n");	
+	fprintf(stderr, "MO:\n\n");	
 
-	// BPU_T_GF2_Matrix * MO;
-	// BPU_gf2MatMalloc(&MO, g_masked->k, HQ->n);
-	// BPU_gf2MulMat(&MO, g_masked, HQ);
+	BPU_T_GF2_Matrix * MO;
+	BPU_gf2MatMalloc(&MO, g_masked->k, HQ->n);
+	BPU_gf2MulMat(&MO, g_masked, HQ);
 
-	// fprintf(stderr, "MO->k: %i\n", MO->k);
-	// fprintf(stderr, "MO->n: %i\n\n", MO->n);
+	fprintf(stderr, "MO->k: %i\n", MO->k);
+	fprintf(stderr, "MO->n: %i\n\n", MO->n);
 
 	// for (j = 0; j < MO->elements_in_row; j++) {
-	// 	BPU_printBinaryMsb(MO->elements[0][j], MO->element_bit_size);
+	// 	BPU_printBinaryMsbLn(MO->elements[0][j], MO->element_bit_size);
 	// }
+
+	BPU_printGf2Mat(MO);
+
 	// ***********************************************************************
 	
 	
